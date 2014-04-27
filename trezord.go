@@ -1,43 +1,47 @@
 package main
 
 import (
+	"github.com/ant0ine/go-json-rest/rest"
+	"net/http"
 	"./go.hid"
-	"fmt"
-	"time"
 )
+
+func main() {
+	handler := rest.ResourceHandler{
+		EnableRelaxedContentType: true,
+	}
+	handler.SetRoutes(
+		&rest.Route{"GET", "/devices", GetDevices},
+		&rest.Route{"GET", "/devices/:id", PostDevice},
+	)
+	http.ListenAndServe(":8080", &handler)
+}
 
 const vendor_id  = 0x534c
 const product_id = 0x0001
 
-func enumerate() []string {
+func GetDevices(w rest.ResponseWriter, r *rest.Request) {
 	list, err := hid.Enumerate(vendor_id, product_id)
-	var result []string
+	devices := make(map[string]string, 0)
 	if err == nil {
 		for _, v := range list {
 			if v.InterfaceNumber == 0 || v.InterfaceNumber == -1 {
-				result = append(result, v.Path)
+				dev, err := hid.OpenPath(v.Path)
+				if err == nil {
+					sn, _ := dev.SerialNumberString()
+					devices[v.Path] = sn
+				}
+				dev.Close()
 			}
 		}
 	}
-	return result
+	w.WriteJson(&devices)
 }
 
-func main() {
-	for {
-
-		m := enumerate()
-
-		for k, v := range m {
-			dev, err := hid.OpenPath(v)
-			if err == nil {
-				ms, _ := dev.ManufacturerString()
-				ps, _ := dev.ProductString()
-				sns, _ := dev.SerialNumberString()
-				fmt.Println(k, ms, ps, sns)
-			}
-			dev.Close()
-		}
-
-		time.Sleep(500 * time.Millisecond)
-	}
+func PostDevice(w rest.ResponseWriter, r *rest.Request) {
+	code := r.PathParam("id")
+	// r.DecodeJsonPayload
+	result := make([]string, 1)
+	result[0] = code
+	w.WriteJson(&result)
 }
