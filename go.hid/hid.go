@@ -10,8 +10,9 @@ package hid
 // (Although since hidapi is cross-platform, making this library crossplatform probably isn't too hard)
 
 /*
-#cgo LDFLAGS: /usr/local/lib64/libhidapi-libusb.a -lusb-1.0
-#include <hidapi/hidapi.h>
+#cgo linux pkg-config: libusb-1.0
+#cgo linux LDFLAGS: -lusb-1.0
+#include "hidapi.h"
 #include <stdlib.h>
 */
 import "C"
