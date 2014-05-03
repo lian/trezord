@@ -41,7 +41,7 @@ func GetDevices(w rest.ResponseWriter, r *rest.Request) {
 func PostDevice(w rest.ResponseWriter, r *rest.Request) {
 	code := r.PathParam("id")
 	// r.DecodeJsonPayload
-	result := make([]string, 1)
-	result[0] = code
+	result := make(map[string]string, 0)
+	result["code"] = code
 	w.WriteJson(&result)
 }
