@@ -22,9 +22,7 @@ set (SRCS
   src/utils.hpp
   src/protobuf/state.hpp
   src/protobuf/json_codec.hpp
-  src/protobuf/wire_codec.hpp
-  src/config/config.pb.cc
-  src/config/config.pb.h)
+  src/protobuf/wire_codec.hpp)
 
 if (WIN32)
   set (SRCS src/trezord.rc ${SRCS})
@@ -72,6 +70,14 @@ set(CMAKE_FIND_STATIC FIRST)
 find_package(Boost 1.53.0 REQUIRED regex thread system unit_test_framework program_options chrono)
 find_package(Protobuf 2.5.0 REQUIRED)
 find_package(jsoncpp REQUIRED)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+set(PROTOBUF_IMPORT_DIRS ${PROTOBUF_INCLUDE_DIRS})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS src/config/config.proto)
+set(SRCS ${PROTO_SRCS} ${PROTO_HDRS} ${SRCS})
+message(${SRCS})
+
+add_executable(trezord ${SRCS})
 
 # add vendored libs
 add_subdirectory(vendor/hidapi)
