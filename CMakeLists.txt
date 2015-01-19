@@ -58,6 +58,8 @@ endif(WIN32)
 
 target_link_libraries(trezord ${OS_LIBRARIES})
 
+include(FindProtobuf)
+
 # add dynamic libs
 find_package(CURL REQUIRED)
 find_package(libmicrohttpd REQUIRED)
@@ -78,8 +80,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # generate files and add them to the build
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS vendor/trezor-common/protob/config.proto)
 set(SRCS ${SRCS} ${PROTO_SRCS} ${PROTO_HDRS})
-
-add_executable(trezord ${SRCS})
 
 # add vendored libs
 add_subdirectory(vendor/hidapi)
